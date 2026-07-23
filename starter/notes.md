@@ -1,0 +1,7 @@
+# NOTES
+
+The final model uses the baseline GPT architecture with a custom character-plus-byte fallback tokenizer trained only on the provided corpus. The primary signal exploited by the model is improved sequence efficiency, as common multi-byte Devanagari characters are represented by a single token instead of multiple UTF-8 bytes. This allows more meaningful text to fit within the fixed context window and training budget, improving language modeling performance without changing the architecture. 
+Experiments showed that optimizer modifications such as AdamW, warmup, cosine learning-rate decay, dropout, and weight decay consistently degraded performance under the strict 2000-step constraint. Increasing model size and context length also failed to improve the evaluation score because the optimization budget was too limited to effectively train the larger model. 
+The tokenizer change produced the largest improvement, reducing the development BPB from **2.3718** to **2.3136** while remaining well below the two-million-parameter limit. 
+The model still struggles with long-range dependencies because of the small context window and limited number of optimization steps. Rare or unseen Unicode characters also fall back to byte-level encoding, making them less efficiently represented than frequent characters. 
+With one additional day, I would implement a frequency-based BPE tokenizer with byte fallback and further tune the vocabulary size while keeping the model within the parameter and training constraints.
